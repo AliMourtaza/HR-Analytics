@@ -68,14 +68,17 @@ FROM hrdata;
 
 ## Average Age:
 ```
-SELECT ROUND(AVG(age),2) AS average_age
+SELECT
+	ROUND(AVG(age),2) AS average_age
 FROM hrdata;
 ```
 ![image](https://github.com/user-attachments/assets/0ea058cf-495e-47b1-a04a-63ab3c5546c9)
 
 ## Attrition by Gender:
 ```
-SELECT gender, COUNT(attrition) AS attrition_count
+SELECT
+	gender,
+	COUNT(attrition) AS attrition_count
 FROM hrdata
 WHERE attrition='Yes'
 GROUP BY 1
@@ -92,12 +95,29 @@ FROM hrdata
 GROUP BY 1
 ```
 ![image](https://github.com/user-attachments/assets/b7c79636-330f-4432-be59-332771e33a37)
+## Education Field wise Attrition:
+```
+SELECT
+    education_field,
+    COUNT(attrition) AS attrition_count,
+    ROUND(
+        COUNT(attrition)::NUMERIC / 
+        (SELECT COUNT(attrition) 
+         FROM hrdata 
+         WHERE attrition = 'Yes')::NUMERIC * 100, 2
+    ) AS pct
+FROM hrdata
+WHERE attrition = 'Yes'
+GROUP BY 1
+ORDER BY 2 DESC;
+```
+![image](https://github.com/user-attachments/assets/0a9b2583-f405-4827-9df6-f43201add27b)
 
 ## Attrition Rate by Gender for different Age Group:
 ```
 SELECT
     age_band,
-	gender,
+    gender,
     COUNT(attrition) AS attrition_count,
     ROUND(
         COUNT(attrition)::NUMERIC / 
@@ -111,3 +131,29 @@ GROUP BY 1, 2
 ORDER BY 1, 2 DESC;
 ```
 ![image](https://github.com/user-attachments/assets/53eaf9f3-c19e-405c-b9b8-bcc36bf58907)
+
+## Job Satisfaction Rating:
+```
+CREATE EXTENSION IF NOT EXISTS tablefunc
+
+SELECT *
+FROM crosstab(
+    $$
+    SELECT 
+        job_role, 
+        job_satisfaction, 
+        SUM(employee_count)
+    FROM hrdata
+    GROUP BY job_role, job_satisfaction
+    ORDER BY job_role, job_satisfaction
+    $$
+) AS ct(
+    job_role VARCHAR(50), 
+    one NUMERIC, 
+    two NUMERIC, 
+    three NUMERIC, 
+    four NUMERIC
+)
+ORDER BY job_role;
+```
+![image](https://github.com/user-attachments/assets/1b1f7c37-4014-4e42-9b8a-2ac73499bbe3)
