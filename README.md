@@ -73,7 +73,7 @@ FROM hrdata;
 ```
 ![image](https://github.com/user-attachments/assets/0ea058cf-495e-47b1-a04a-63ab3c5546c9)
 
-## Attrition by Gender
+## Attrition by Gender:
 ```
 SELECT gender, COUNT(attrition) AS attrition_count
 FROM hrdata
@@ -83,3 +83,31 @@ ORDER BY 2 desc;
 ```
 ![image](https://github.com/user-attachments/assets/1a7af47f-43be-4359-be63-1c5f09cebe88)
 
+## No of Employee by Age Group:
+```
+SELECT
+	gender,
+	COUNT(employee_count)
+FROM hrdata
+GROUP BY 1
+```
+![image](https://github.com/user-attachments/assets/b7c79636-330f-4432-be59-332771e33a37)
+
+## Attrition Rate by Gender for different Age Group:
+```
+SELECT
+    age_band,
+	gender,
+    COUNT(attrition) AS attrition_count,
+    ROUND(
+        COUNT(attrition)::NUMERIC / 
+        (SELECT COUNT(attrition) 
+         FROM hrdata 
+         WHERE attrition = 'Yes')::NUMERIC * 100, 2
+    ) AS pct
+FROM hrdata
+WHERE attrition = 'Yes'
+GROUP BY 1, 2
+ORDER BY 1, 2 DESC;
+```
+![image](https://github.com/user-attachments/assets/53eaf9f3-c19e-405c-b9b8-bcc36bf58907)
